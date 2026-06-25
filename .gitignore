@@ -1,0 +1,25 @@
+.DS_Store
+
+build/
+
+
+venv/
+
+PyInstaller
+dist/
+*.spec
+
+
+
+__pycache__/
+
+hand_landmarker.task
+
+
+Embodied Interaction.pptx
+
+Embodied Interaction.pdf
+
+
+
+*.pages
