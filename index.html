@@ -709,6 +709,42 @@
     background: #ffffff;
     display: none;
   }
+
+  /* Fullscreen specific styling for the presentation viewer panel */
+  .viewer-panel:fullscreen {
+    padding: 40px !important;
+    background: #040d1a !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    box-sizing: border-box;
+  }
+  .viewer-panel:fullscreen .slide-wrapper {
+    width: 100% !important;
+    max-width: 960px !important;
+    height: 90% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+  .viewer-panel:fullscreen .slide-title {
+    font-size: 38px !important;
+  }
+  .viewer-panel:fullscreen .slide-body {
+    font-size: 20px !important;
+  }
+  .viewer-panel:fullscreen .gesture-hint {
+    font-size: 16px !important;
+    padding: 16px 20px !important;
+  }
+  .viewer-panel:fullscreen #pdf-canvas {
+    max-height: 65vh !important;
+    width: auto !important;
+    margin: 0 auto !important;
+  }
 </style>
 </head>
 <body>
@@ -915,7 +951,6 @@
         <div class="video-container">
           <video id="webcam" autoplay playsinline></video>
           <canvas id="output_canvas"></canvas>
-          <div id="laser-dot"></div>
           <!-- Loading overlay -->
           <div id="loading-overlay" class="overlay">
             <div class="spinner"></div>
@@ -984,12 +1019,20 @@
             
             <!-- Canvas Overlay for PDF Rendering -->
             <canvas id="pdf-canvas"></canvas>
+            <!-- Laser Dot (inside slide container so it renders on slides) -->
+            <div id="laser-dot"></div>
           </div>
           <!-- Slide Navigation Controls -->
           <div class="slide-controls">
             <button id="prevSlideBtn" class="btn btn-ghost" style="padding: 10px 20px;">Prev</button>
             <div id="slide-indicator">1 / 5</div>
-            <button id="nextSlideBtn" class="btn btn-ghost" style="padding: 10px 20px;">Next</button>
+            <div style="display: flex; gap: 10px;">
+              <button id="nextSlideBtn" class="btn btn-ghost" style="padding: 10px 20px;">Next</button>
+              <button id="fullscreenBtn" class="btn btn-ghost" style="padding: 10px 20px; display: inline-flex; align-items: center; gap: 6px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                Fullscreen
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1208,28 +1251,34 @@
   async function predictWebcam() {
     if (!isWebcamRunning) return;
     
-    canvasElement.width = video.videoWidth;
-    canvasElement.height = video.videoHeight;
-    
-    let startTimeMs = Date.now();
-    if (lastVideoTime !== video.currentTime) {
-      lastVideoTime = video.currentTime;
-      const results = handLandmarker.detectForVideo(video, startTimeMs);
+    try {
+      canvasElement.width = video.videoWidth;
+      canvasElement.height = video.videoHeight;
       
-      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-      
-      if (results.landmarks && results.landmarks.length > 0) {
-        drawSkeleton(results.landmarks);
+      let startTimeMs = performance.now();
+      if (lastVideoTime !== video.currentTime) {
+        lastVideoTime = video.currentTime;
+        const results = handLandmarker.detectForVideo(video, startTimeMs);
         
-        // Use first hand detected
-        const landmarks = results.landmarks[0];
-        processGestures(landmarks);
-      } else {
-        gestureText.textContent = "None";
-        laserDot.style.display = "none";
-        fistGestureStartTime = 0;
-        vGestureStartTime = 0;
+        canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        
+        if (results.landmarks && results.landmarks.length > 0) {
+          drawSkeleton(results.landmarks);
+          
+          // Use first hand detected
+          const landmarks = results.landmarks[0];
+          processGestures(landmarks);
+        } else {
+          gestureText.textContent = "None";
+          laserDot.style.display = "none";
+          fistGestureStartTime = 0;
+          vGestureStartTime = 0;
+        }
       }
+    } catch (err) {
+      console.error("Webcam prediction loop error:", err);
+      statusText.textContent = "Err: " + err.message;
+      statusText.className = "status-val text-danger";
     }
     
     if (isWebcamRunning) {
@@ -1306,61 +1355,93 @@
   function processGestures(lm) {
     const now = Date.now();
     
+    // 1. FAUST 1 SEK -> Letzte Folie
     if (isFist(lm)) {
-      gestureText.textContent = "✊ Closed Fist";
+      vGestureStartTime = 0; // Reset V timer
       if (fistGestureStartTime === 0) {
         fistGestureStartTime = now;
-      } else if (now - fistGestureStartTime >= 1500) {
+      }
+      const elapsed = now - fistGestureStartTime;
+      const remaining = (1000 - elapsed) / 1000;
+      
+      if (remaining > 0) {
+        gestureText.textContent = `✊ Fist (Hold ${remaining.toFixed(1)}s)`;
+      } else {
         jumpToLastSlide();
         fistGestureStartTime = 0;
+        gestureText.textContent = "✊ Last Slide";
       }
-      vGestureStartTime = 0;
       laserDot.style.display = "none";
       return;
+    } else {
+      fistGestureStartTime = 0;
     }
     
+    // 2. V-GESTE 1.5 SEK -> Laser pointer switch
     if (isVGesture(lm)) {
-      gestureText.textContent = "✌️ Victory Sign";
       if (vGestureStartTime === 0) {
         vGestureStartTime = now;
-      } else if (now - vGestureStartTime >= 1500) {
-        laserActive = !laserActive;
-        vGestureStartTime = now;
-        if (!laserActive) laserDot.style.display = "none";
       }
-      fistGestureStartTime = 0;
+      const elapsed = now - vGestureStartTime;
+      const remaining = (1500 - elapsed) / 1000;
+      
+      if (remaining > 0) {
+        gestureText.textContent = laserActive 
+          ? `✌️ Laser off in ${remaining.toFixed(1)}s` 
+          : `✌️ Laser on in ${remaining.toFixed(1)}s`;
+      } else {
+        laserActive = !laserActive;
+        vGestureStartTime = now; // Prevent immediate double trigger
+        if (!laserActive) {
+          laserDot.style.display = "none";
+          gestureText.textContent = "✌️ Laser OFF";
+        } else {
+          gestureText.textContent = "✌️ Laser ON";
+        }
+      }
+      
+      // Update laser dot position if it is currently active
+      if (laserActive) {
+        updateLaserDot(lm);
+      }
       return;
+    } else {
+      vGestureStartTime = 0;
     }
     
-    fistGestureStartTime = 0;
-    vGestureStartTime = 0;
-    
+    // 3. Track index finger for Laser Pointer if active
     if (laserActive) {
       gestureText.textContent = "✌️ Laser Active";
-      const rect = slideContainer.getBoundingClientRect();
-      const laserX = lm[8].x * rect.width;
-      const laserY = lm[8].y * rect.height;
-      laserDot.style.left = `${laserX}px`;
-      laserDot.style.top = `${laserY}px`;
-      laserDot.style.display = "block";
+      updateLaserDot(lm);
       return;
     }
     
     laserDot.style.display = "none";
     
-    if (areAllFingersOpen(lm) && isRightHand(lm)) {
-      gestureText.textContent = "🖐️ Right Hand Open";
-      changeSlide(1);
+    // 4. Swipe Gestures
+    if (areAllFingersOpen(lm)) {
+      if (isRightHand(lm)) {
+        gestureText.textContent = "🖐️ Right Hand (Next)";
+        changeSlide(1);
+      } else if (isLeftHand(lm)) {
+        gestureText.textContent = "🖐️ Left Hand (Prev)";
+        changeSlide(-1);
+      }
       return;
     }
     
-    if (areAllFingersOpen(lm) && isLeftHand(lm)) {
-      gestureText.textContent = "🖐️ Left Hand Open";
-      changeSlide(-1);
-      return;
-    }
+    gestureText.textContent = "Tracking (Ready)";
+  }
+
+  function updateLaserDot(lm) {
+    const rect = slideContainer.getBoundingClientRect();
+    // Since video is scaleX(-1) mirrored, index finger x (landmark 8) maps:
+    const laserX = (1 - lm[8].x) * rect.width;
+    const laserY = lm[8].y * rect.height;
     
-    gestureText.textContent = "Active (No gesture)";
+    laserDot.style.left = `${laserX}px`;
+    laserDot.style.top = `${laserY}px`;
+    laserDot.style.display = "block";
   }
 
   // Slide Controller
@@ -1479,6 +1560,34 @@
     currentSlide = 1;
     showHtmlSlide(currentSlide);
   }
+
+  // Fullscreen implementation
+  const fullscreenBtn = document.getElementById("fullscreenBtn");
+  const viewerPanel = document.querySelector(".viewer-panel");
+
+  fullscreenBtn.addEventListener("click", () => {
+    if (!document.fullscreenElement) {
+      viewerPanel.requestFullscreen().catch(err => {
+        alert(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  });
+
+  document.addEventListener("fullscreenchange", () => {
+    if (document.fullscreenElement) {
+      fullscreenBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M4 14h6v6m10-6h-6v6M4 10h6V4m10 6h-6V4"/></svg>
+        Exit Fullscreen
+      `;
+    } else {
+      fullscreenBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        Fullscreen
+      `;
+    }
+  });
 </script>
 
 </body>
