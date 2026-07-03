@@ -873,6 +873,94 @@
     margin: 0 auto !important;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
   }
+
+  /* Presentation Mode (Slide Container Fullscreen) - Full cover */
+  #slide-container:fullscreen,
+  #slide-container:-webkit-full-screen {
+    background: #000000 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+  }
+  #slide-container:fullscreen #pdf-canvas,
+  #slide-container:-webkit-full-screen #pdf-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: auto !important;
+  }
+  #slide-container:fullscreen .slide,
+  #slide-container:-webkit-full-screen .slide {
+    width: 90% !important;
+    max-width: 1000px !important;
+    margin: auto !important;
+    gap: 24px !important;
+    display: none !important;
+  }
+  #slide-container:fullscreen .slide.active-slide,
+  #slide-container:-webkit-full-screen .slide.active-slide {
+    display: flex !important;
+  }
+  #slide-container:fullscreen .slide-num,
+  #slide-container:-webkit-full-screen .slide-num {
+    font-size: 20px !important;
+  }
+  #slide-container:fullscreen .slide-title,
+  #slide-container:-webkit-full-screen .slide-title {
+    font-size: 56px !important;
+  }
+  #slide-container:fullscreen .slide-body,
+  #slide-container:-webkit-full-screen .slide-body {
+    font-size: 28px !important;
+    line-height: 1.7 !important;
+  }
+  #slide-container:fullscreen .gesture-hint,
+  #slide-container:-webkit-full-screen .gesture-hint {
+    display: none !important;
+  }
+
+  /* Responsive Slide Controls Styles */
+  .slide-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 20px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    flex-wrap: wrap;
+  }
+  .controls-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  @media (max-width: 680px) {
+    .slide-controls {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    .controls-group {
+      justify-content: center;
+      width: 100%;
+    }
+    #slide-indicator {
+      order: -1;
+      font-size: 14px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -1154,7 +1242,7 @@
           <div class="slide-controls">
             <button id="prevSlideBtn" class="btn btn-ghost" style="padding: 10px 20px;">Prev</button>
             <div id="slide-indicator">1 / 5</div>
-            <div style="display: flex; gap: 10px; align-items: center;">
+            <div class="controls-group" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
               <button id="nextSlideBtn" class="btn btn-ghost" style="padding: 10px 20px;">Next</button>
               <button id="fullscreenBtn" class="btn btn-ghost" style="padding: 10px 15px; display: inline-flex; align-items: center; gap: 6px;" title="Fullscreen panel with controls">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
@@ -1709,7 +1797,8 @@
   const viewerPanel = document.querySelector(".viewer-panel");
 
   fullscreenBtn.addEventListener("click", () => {
-    if (!isFullscreen()) {
+    const activeEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (activeEl !== viewerPanel) {
       const requestMethod = viewerPanel.requestFullscreen || 
                             viewerPanel.webkitRequestFullscreen || 
                             viewerPanel.mozRequestFullScreen || 
@@ -1725,7 +1814,8 @@
   });
 
   presentBtn.addEventListener("click", () => {
-    if (!isFullscreen()) {
+    const activeEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+    if (activeEl !== slideContainer) {
       const requestMethod = slideContainer.requestFullscreen || 
                             slideContainer.webkitRequestFullscreen || 
                             slideContainer.mozRequestFullScreen || 
