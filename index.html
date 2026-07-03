@@ -712,7 +712,7 @@
 
   /* Fullscreen specific styling for the presentation viewer panel */
   .viewer-panel:fullscreen {
-    padding: 40px !important;
+    padding: 60px !important;
     background: #040d1a !important;
     display: flex !important;
     flex-direction: column !important;
@@ -724,26 +724,45 @@
   }
   .viewer-panel:fullscreen .slide-wrapper {
     width: 100% !important;
-    max-width: 960px !important;
-    height: 90% !important;
+    max-width: 1100px !important;
+    height: 85% !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
   }
-  .viewer-panel:fullscreen .slide-title {
-    font-size: 38px !important;
+  .viewer-panel:fullscreen .slide-container {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 50vh !important;
   }
-  .viewer-panel:fullscreen .slide-body {
+  .viewer-panel:fullscreen .slide {
+    gap: 24px !important;
+  }
+  .viewer-panel:fullscreen .slide-num {
     font-size: 20px !important;
   }
+  .viewer-panel:fullscreen .slide-title {
+    font-size: 48px !important;
+  }
+  .viewer-panel:fullscreen .slide-body {
+    font-size: 24px !important;
+    line-height: 1.7 !important;
+  }
   .viewer-panel:fullscreen .gesture-hint {
-    font-size: 16px !important;
-    padding: 16px 20px !important;
+    font-size: 18px !important;
+    padding: 20px 28px !important;
+    margin-top: 24px !important;
   }
   .viewer-panel:fullscreen #pdf-canvas {
-    max-height: 65vh !important;
+    max-height: 70vh !important;
+    max-width: 95vw !important;
     width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
     margin: 0 auto !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
   }
 </style>
 </head>
@@ -1537,7 +1556,9 @@
 
   function renderPdfPage(num) {
     pdfDoc.getPage(num).then(function(page) {
-      const viewport = page.getViewport({ scale: 1.2 });
+      // Dynamically use scale 2.2 in fullscreen, 1.2 normally for crisp rendering
+      const scale = document.fullscreenElement ? 2.2 : 1.2;
+      const viewport = page.getViewport({ scale: scale });
       pdfCanvas.height = viewport.height;
       pdfCanvas.width = viewport.width;
       
@@ -1576,6 +1597,11 @@
   });
 
   document.addEventListener("fullscreenchange", () => {
+    // If a PDF is active, trigger re-render so it updates its resolution and scale to fill the screen
+    if (isPdfActive && pdfDoc) {
+      renderPdfPage(pdfPageNum);
+    }
+    
     if (document.fullscreenElement) {
       fullscreenBtn.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M4 14h6v6m10-6h-6v6M4 10h6V4m10 6h-6V4"/></svg>
