@@ -1,4 +1,5 @@
 import { HandLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/vision_bundle.mjs";
+import CONFIG from './config.js';
 
 // 1. Page Layout & Interactive UI animations
 const header = document.getElementById('siteHeader');
@@ -54,7 +55,7 @@ const slideContainer = document.getElementById("slide-container");
 
 // Presentation State
 let currentSlide = 1;
-const totalSlides = 5;
+const totalSlides = CONFIG.totalDemoSlides;
 let isWebcamRunning = false;
 let handLandmarker = undefined;
 let lastVideoTime = -1;
@@ -67,7 +68,7 @@ const pdfCanvas = document.getElementById("pdf-canvas");
 
 // Hold Gesture Timers & Cooldown
 let lastActionTime = 0;
-const actionCooldownMs = 1200;
+const actionCooldownMs = CONFIG.actionCooldownMs;
 let fistGestureStartTime = 0;
 let vGestureStartTime = 0;
 let laserActive = false;
@@ -79,12 +80,10 @@ async function loadModel() {
   statusText.textContent = "Loading AI...";
   
   try {
-    const vision = await FilesetResolver.forVisionTasks(
-      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.8/wasm"
-    );
+    const vision = await FilesetResolver.forVisionTasks(CONFIG.wasmFilesetResolverUrl);
     handLandmarker = await HandLandmarker.createFromOptions(vision, {
       baseOptions: {
-        modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+        modelAssetPath: CONFIG.mediapipeModelUrl,
         delegate: "GPU"
       },
       runningMode: "VIDEO",
@@ -279,7 +278,7 @@ function processGestures(lm) {
       fistGestureStartTime = now;
     }
     const elapsed = now - fistGestureStartTime;
-    const remaining = (1000 - elapsed) / 1000;
+    const remaining = (CONFIG.fistHoldDurationMs - elapsed) / 1000;
     
     if (remaining > 0) {
       gestureText.textContent = `✊ Fist (Hold ${remaining.toFixed(1)}s)`;
@@ -300,7 +299,7 @@ function processGestures(lm) {
       vGestureStartTime = now;
     }
     const elapsed = now - vGestureStartTime;
-    const remaining = (1500 - elapsed) / 1000;
+    const remaining = (CONFIG.vGestureHoldDurationMs - elapsed) / 1000;
     
     if (remaining > 0) {
       gestureText.textContent = laserActive 
@@ -507,7 +506,7 @@ function renderPdfPage(num) {
   if (!pdfDoc) return;
   pdfDoc.getPage(num).then(function(page) {
     // Dynamically use scale 2.2 in fullscreen, 1.2 normally for crisp rendering
-    const scale = isFullscreen() ? 2.2 : 1.2;
+    const scale = isFullscreen() ? CONFIG.pdfFullscreenScale : CONFIG.pdfNormalScale;
     const viewport = page.getViewport({ scale: scale });
     if (pdfCanvas) {
       pdfCanvas.height = viewport.height;
