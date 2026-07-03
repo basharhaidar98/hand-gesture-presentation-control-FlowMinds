@@ -3,6 +3,9 @@ import os
 os.environ['GLOG_minloglevel'] = '3'
 os.environ['GLOG_logtostderr'] = '0'
 
+import matplotlib
+matplotlib.use('Agg')
+
 import cv2
 import pyautogui
 import time
@@ -20,12 +23,30 @@ pyautogui.FAILSAFE = False
 # FINALE VERSION
 # ================================
 
-model_path = "hand_landmarker.task"
+import sys
+
+def get_model_path():
+    # If running inside PyInstaller bundle, look in sys._MEIPASS
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, "hand_landmarker.task")
+    # Otherwise look in the script directory
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(script_dir, "hand_landmarker.task")
+
+model_path = get_model_path()
 if not os.path.exists(model_path):
     print("Lade Hand-Model herunter...")
     url = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task"
-    urllib.request.urlretrieve(url, model_path)
-    print("Model heruntergeladen!")
+    try:
+        urllib.request.urlretrieve(url, model_path)
+        print("Model heruntergeladen!")
+    except Exception as e:
+        print(f"Fehler beim Herunterladen des Modells: {e}")
+        # Fallback to current directory
+        model_path = "hand_landmarker.task"
+        if not os.path.exists(model_path):
+            urllib.request.urlretrieve(url, model_path)
+
 
 latest_result = None
 
