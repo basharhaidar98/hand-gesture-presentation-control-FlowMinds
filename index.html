@@ -1726,6 +1726,36 @@
   document.getElementById("prevSlideBtn").addEventListener("click", () => changeSlide(-1));
   document.getElementById("nextSlideBtn").addEventListener("click", () => changeSlide(1));
 
+  // Keyboard Navigation for Slides
+  document.addEventListener('keydown', function(event) {
+    // Avoid triggering when user is interacting with input fields
+    if (document.activeElement && (
+        document.activeElement.tagName === 'INPUT' || 
+        document.activeElement.tagName === 'TEXTAREA' || 
+        document.activeElement.isContentEditable)) {
+      return;
+    }
+    
+    if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
+      if (event.key === ' ') {
+        event.preventDefault(); // Prevent scrolling down when hitting spacebar
+      }
+      changeSlide(1);
+    } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+      changeSlide(-1);
+    } else if (event.key === 'Home') {
+      if (isPdfActive) {
+        pdfPageNum = 1;
+        renderPdfPage(pdfPageNum);
+      } else {
+        currentSlide = 1;
+        showHtmlSlide(currentSlide);
+      }
+    } else if (event.key === 'End') {
+      jumpToLastSlide();
+    }
+  });
+
   // PDF Upload Handlers
   const fileInput = document.getElementById('pdf-file');
   const pdfNameText = document.getElementById('pdf-name');
