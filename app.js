@@ -272,7 +272,7 @@ function processGestures(lm) {
   const now = Date.now();
   
   // 1. FAUST 1 SEK -> Letzte Folie
-  if (isFist(lm)) {
+  if (isFist(lm) && !laserActive) {
     vGestureStartTime = 0; // Reset V timer
     if (fistGestureStartTime === 0) {
       fistGestureStartTime = now;

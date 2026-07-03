@@ -3,7 +3,7 @@ const CONFIG = {
   actionCooldownMs: 1200,
 
   // Duration in milliseconds to hold a fist to go to the last slide
-  fistHoldDurationMs: 1000,
+  fistHoldDurationMs: 4000,
 
   // Duration in milliseconds to hold a victory sign to toggle the laser pointer
   vGestureHoldDurationMs: 1500,
