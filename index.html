@@ -765,6 +765,60 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
   }
 
+  /* Presentation Mode (Slide Container Fullscreen) */
+  #slide-container:fullscreen,
+  #slide-container:-webkit-full-screen {
+    background: #000000 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-sizing: border-box;
+  }
+  #slide-container:fullscreen #pdf-canvas,
+  #slide-container:-webkit-full-screen #pdf-canvas {
+    max-height: 100vh !important;
+    max-width: 100vw !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+  }
+  #slide-container:fullscreen .slide,
+  #slide-container:-webkit-full-screen .slide {
+    width: 90% !important;
+    max-width: 1000px !important;
+    margin: 0 auto !important;
+    gap: 24px !important;
+    display: none;
+  }
+  #slide-container:fullscreen .slide.active-slide,
+  #slide-container:-webkit-full-screen .slide.active-slide {
+    display: flex !important;
+  }
+  #slide-container:fullscreen .slide-num,
+  #slide-container:-webkit-full-screen .slide-num {
+    font-size: 20px !important;
+  }
+  #slide-container:fullscreen .slide-title,
+  #slide-container:-webkit-full-screen .slide-title {
+    font-size: 56px !important;
+  }
+  #slide-container:fullscreen .slide-body,
+  #slide-container:-webkit-full-screen .slide-body {
+    font-size: 28px !important;
+    line-height: 1.7 !important;
+  }
+  #slide-container:fullscreen .gesture-hint,
+  #slide-container:-webkit-full-screen .gesture-hint {
+    display: none !important;
+  }
+
   /* Safari webkit-prefixed fullscreen styling */
   .viewer-panel:-webkit-full-screen {
     padding: 60px !important;
@@ -1100,11 +1154,15 @@
           <div class="slide-controls">
             <button id="prevSlideBtn" class="btn btn-ghost" style="padding: 10px 20px;">Prev</button>
             <div id="slide-indicator">1 / 5</div>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
               <button id="nextSlideBtn" class="btn btn-ghost" style="padding: 10px 20px;">Next</button>
-              <button id="fullscreenBtn" class="btn btn-ghost" style="padding: 10px 20px; display: inline-flex; align-items: center; gap: 6px;">
+              <button id="fullscreenBtn" class="btn btn-ghost" style="padding: 10px 15px; display: inline-flex; align-items: center; gap: 6px;" title="Fullscreen panel with controls">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
                 Fullscreen
+              </button>
+              <button id="presentBtn" class="btn btn-primary" style="padding: 10px 15px; display: inline-flex; align-items: center; gap: 6px;" title="Presentation Mode (Slides only)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Presentation Mode
               </button>
             </div>
           </div>
@@ -1647,6 +1705,7 @@
 
   // Fullscreen implementation with full Safari compatibility
   const fullscreenBtn = document.getElementById("fullscreenBtn");
+  const presentBtn = document.getElementById("presentBtn");
   const viewerPanel = document.querySelector(".viewer-panel");
 
   fullscreenBtn.addEventListener("click", () => {
@@ -1657,37 +1716,70 @@
                             viewerPanel.msRequestFullscreen;
       if (requestMethod) {
         requestMethod.call(viewerPanel).catch(err => {
-          alert(`Error attempting to enable full-screen mode: ${err.message}`);
+          alert(`Error: ${err.message}`);
         });
       }
     } else {
-      const exitMethod = document.exitFullscreen || 
-                         document.webkitExitFullscreen || 
-                         document.mozCancelFullScreen || 
-                         document.msExitFullscreen;
-      if (exitMethod) {
-        exitMethod.call(document);
-      }
+      exitFullscreen();
     }
   });
+
+  presentBtn.addEventListener("click", () => {
+    if (!isFullscreen()) {
+      const requestMethod = slideContainer.requestFullscreen || 
+                            slideContainer.webkitRequestFullscreen || 
+                            slideContainer.mozRequestFullScreen || 
+                            slideContainer.msRequestFullscreen;
+      if (requestMethod) {
+        requestMethod.call(slideContainer).catch(err => {
+          alert(`Error: ${err.message}`);
+        });
+      }
+    } else {
+      exitFullscreen();
+    }
+  });
+
+  function exitFullscreen() {
+    const exitMethod = document.exitFullscreen || 
+                       document.webkitExitFullscreen || 
+                       document.mozCancelFullScreen || 
+                       document.msExitFullscreen;
+    if (exitMethod) {
+      exitMethod.call(document);
+    }
+  }
 
   const fullscreenEvents = ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange"];
   fullscreenEvents.forEach(evt => {
     document.addEventListener(evt, () => {
+      const activeEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement;
+      
       // If a PDF is active, trigger re-render so it updates its resolution and scale to fill the screen
       if (isPdfActive && pdfDoc) {
         renderPdfPage(pdfPageNum);
       }
       
-      if (isFullscreen()) {
+      // Reset button labels
+      fullscreenBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right: 6px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+        Fullscreen
+      `;
+      presentBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right: 6px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Presentation Mode
+      `;
+      
+      // Update active button label based on which element is fullscreen
+      if (activeEl === viewerPanel) {
         fullscreenBtn.innerHTML = `
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right: 6px;"><path d="M4 14h6v6m10-6h-6v6M4 10h6V4m10 6h-6V4"/></svg>
           Exit Fullscreen
         `;
-      } else {
-        fullscreenBtn.innerHTML = `
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right: 6px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-          Fullscreen
+      } else if (activeEl === slideContainer) {
+        presentBtn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right: 6px;"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"/></svg>
+          Exit Presenting
         `;
       }
     });
