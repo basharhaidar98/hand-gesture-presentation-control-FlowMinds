@@ -1214,7 +1214,7 @@
     let startTimeMs = Date.now();
     if (lastVideoTime !== video.currentTime) {
       lastVideoTime = video.currentTime;
-      const results = handLandmarker.predict(video);
+      const results = handLandmarker.detectForVideo(video, startTimeMs);
       
       canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
       
