@@ -34,8 +34,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository contents (index.html, flowminds.html, etc.)
-          path: '.'
+          # Upload web app contents
+          path: 'web'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

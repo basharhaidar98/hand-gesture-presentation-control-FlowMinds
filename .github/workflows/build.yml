@@ -33,23 +33,24 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
+          cd src
           pyinstaller gestures.spec --clean -y
 
       - name: Compress artifacts (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          powershell Compress-Archive -Path dist/gestures -DestinationPath dist/gestures-windows.zip
+          powershell Compress-Archive -Path src/dist/gestures -DestinationPath src/dist/gestures-windows.zip
 
       - name: Compress artifacts (macOS)
         if: matrix.os == 'macos-latest'
         run: |
-          zip -r dist/gestures-mac.zip dist/gestures.app
+          zip -r src/dist/gestures-mac.zip src/dist/gestures.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: gestures-${{ matrix.os }}
           path: |
-            dist/gestures-windows.zip
-            dist/gestures-mac.zip
+            src/dist/gestures-windows.zip
+            src/dist/gestures-mac.zip
           if-no-files-found: ignore
