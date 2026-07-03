@@ -756,7 +756,62 @@
     margin-top: 24px !important;
   }
   .viewer-panel:fullscreen #pdf-canvas {
-    max-height: 70vh !important;
+    max-height: 80vh !important;
+    max-width: 95vw !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin: 0 auto !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+  }
+
+  /* Safari webkit-prefixed fullscreen styling */
+  .viewer-panel:-webkit-full-screen {
+    padding: 60px !important;
+    background: #040d1a !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    box-sizing: border-box;
+  }
+  .viewer-panel:-webkit-full-screen .slide-wrapper {
+    width: 100% !important;
+    max-width: 1100px !important;
+    height: 85% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+  }
+  .viewer-panel:-webkit-full-screen .slide-container {
+    flex: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 50vh !important;
+  }
+  .viewer-panel:-webkit-full-screen .slide {
+    gap: 24px !important;
+  }
+  .viewer-panel:-webkit-full-screen .slide-num {
+    font-size: 20px !important;
+  }
+  .viewer-panel:-webkit-full-screen .slide-title {
+    font-size: 48px !important;
+  }
+  .viewer-panel:-webkit-full-screen .slide-body {
+    font-size: 24px !important;
+    line-height: 1.7 !important;
+  }
+  .viewer-panel:-webkit-full-screen .gesture-hint {
+    font-size: 18px !important;
+    padding: 20px 28px !important;
+    margin-top: 24px !important;
+  }
+  .viewer-panel:-webkit-full-screen #pdf-canvas {
+    max-height: 80vh !important;
     max-width: 95vw !important;
     width: auto !important;
     height: auto !important;
@@ -1554,10 +1609,18 @@
     fileReader.readAsArrayBuffer(file);
   });
 
+  // Cross-browser fullscreen checks
+  function isFullscreen() {
+    return !!(document.fullscreenElement || 
+              document.webkitFullscreenElement || 
+              document.mozFullScreenElement || 
+              document.msFullscreenElement);
+  }
+
   function renderPdfPage(num) {
     pdfDoc.getPage(num).then(function(page) {
       // Dynamically use scale 2.2 in fullscreen, 1.2 normally for crisp rendering
-      const scale = document.fullscreenElement ? 2.2 : 1.2;
+      const scale = isFullscreen() ? 2.2 : 1.2;
       const viewport = page.getViewport({ scale: scale });
       pdfCanvas.height = viewport.height;
       pdfCanvas.width = viewport.width;
@@ -1582,37 +1645,52 @@
     showHtmlSlide(currentSlide);
   }
 
-  // Fullscreen implementation
+  // Fullscreen implementation with full Safari compatibility
   const fullscreenBtn = document.getElementById("fullscreenBtn");
   const viewerPanel = document.querySelector(".viewer-panel");
 
   fullscreenBtn.addEventListener("click", () => {
-    if (!document.fullscreenElement) {
-      viewerPanel.requestFullscreen().catch(err => {
-        alert(`Error attempting to enable full-screen mode: ${err.message}`);
-      });
+    if (!isFullscreen()) {
+      const requestMethod = viewerPanel.requestFullscreen || 
+                            viewerPanel.webkitRequestFullscreen || 
+                            viewerPanel.mozRequestFullScreen || 
+                            viewerPanel.msRequestFullscreen;
+      if (requestMethod) {
+        requestMethod.call(viewerPanel).catch(err => {
+          alert(`Error attempting to enable full-screen mode: ${err.message}`);
+        });
+      }
     } else {
-      document.exitFullscreen();
+      const exitMethod = document.exitFullscreen || 
+                         document.webkitExitFullscreen || 
+                         document.mozCancelFullScreen || 
+                         document.msExitFullscreen;
+      if (exitMethod) {
+        exitMethod.call(document);
+      }
     }
   });
 
-  document.addEventListener("fullscreenchange", () => {
-    // If a PDF is active, trigger re-render so it updates its resolution and scale to fill the screen
-    if (isPdfActive && pdfDoc) {
-      renderPdfPage(pdfPageNum);
-    }
-    
-    if (document.fullscreenElement) {
-      fullscreenBtn.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M4 14h6v6m10-6h-6v6M4 10h6V4m10 6h-6V4"/></svg>
-        Exit Fullscreen
-      `;
-    } else {
-      fullscreenBtn.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-        Fullscreen
-      `;
-    }
+  const fullscreenEvents = ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange"];
+  fullscreenEvents.forEach(evt => {
+    document.addEventListener(evt, () => {
+      // If a PDF is active, trigger re-render so it updates its resolution and scale to fill the screen
+      if (isPdfActive && pdfDoc) {
+        renderPdfPage(pdfPageNum);
+      }
+      
+      if (isFullscreen()) {
+        fullscreenBtn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right: 6px;"><path d="M4 14h6v6m10-6h-6v6M4 10h6V4m10 6h-6V4"/></svg>
+          Exit Fullscreen
+        `;
+      } else {
+        fullscreenBtn.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="margin-right: 6px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          Fullscreen
+        `;
+      }
+    });
   });
 </script>
 
