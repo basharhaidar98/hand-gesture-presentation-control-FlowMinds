@@ -1,11 +1,13 @@
-# -*- mode: python ; coding: utf-8 -*-
+import os
+import mediapipe
 
+mediapipe_path = os.path.dirname(mediapipe.__file__)
 
 a = Analysis(
     ['gestures.py'],
     pathex=[],
     binaries=[],
-    datas=[('hand_landmarker.task', '.'), ('venv/lib/python3.14/site-packages/mediapipe', 'mediapipe')],
+    datas=[('hand_landmarker.task', '.'), (mediapipe_path, 'mediapipe')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
