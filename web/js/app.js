@@ -260,11 +260,11 @@ function isVGesture(lm) {
 }
 
 function isRightHand(lm) {
-  return lm[4].x < lm[8].x;
+  return lm[4].x > lm[8].x;
 }
 
 function isLeftHand(lm) {
-  return lm[4].x > lm[8].x;
+  return lm[4].x < lm[8].x;
 }
 
 // Handle detected gestures
