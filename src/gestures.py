@@ -3,9 +3,6 @@ import os
 os.environ['GLOG_minloglevel'] = '3'
 os.environ['GLOG_logtostderr'] = '0'
 
-import matplotlib
-matplotlib.use('Agg')
-
 import cv2
 import pyautogui
 import time
