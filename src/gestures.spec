@@ -23,7 +23,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='gestures',
+    name='FlowMinds',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -42,11 +42,11 @@ coll = COLLECT(
     strip=False,
     upx=False,
     upx_exclude=[],
-    name='gestures',
+    name='FlowMinds',
 )
 app = BUNDLE(
     coll,
-    name='gestures.app',
+    name='FlowMinds.app',
     icon=None,
     bundle_identifier=None,
     info_plist={

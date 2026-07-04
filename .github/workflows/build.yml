@@ -43,18 +43,18 @@ jobs:
       - name: Compress artifacts (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          powershell Compress-Archive -Path src/dist/gestures -DestinationPath src/dist/gestures-${{ matrix.arch_name }}.zip
+          powershell Compress-Archive -Path src/dist/FlowMinds -DestinationPath src/dist/FlowMinds-${{ matrix.arch_name }}.zip
 
       - name: Compress artifacts (macOS)
         if: matrix.os == 'macos-14'
         run: |
-          zip -r src/dist/gestures-${{ matrix.arch_name }}.zip src/dist/gestures.app
+          zip -r src/dist/FlowMinds-${{ matrix.arch_name }}.zip src/dist/FlowMinds.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gestures-${{ matrix.arch_name }}
-          path: src/dist/gestures-${{ matrix.arch_name }}.zip
+          name: FlowMinds-${{ matrix.arch_name }}
+          path: src/dist/FlowMinds-${{ matrix.arch_name }}.zip
           if-no-files-found: ignore
 
   release:
