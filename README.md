@@ -62,5 +62,5 @@ Due to modern browser security policies (CORS) regarding ES Modules (`import/exp
 - **PyInstaller Build:** Automatically builds standalone `.zip` executables for macOS and Windows and uploads them as workflow artifacts upon every push.
 
 ---
-**Developed by Bashar Haidar & Lana Kara Mohammed**  
+**Developed by [Bashar Haidar](https://www.linkedin.com/in/bashar-haidar-8494a618b/) & Lana Kara Mohammed**  
 *Universität - SS2026*

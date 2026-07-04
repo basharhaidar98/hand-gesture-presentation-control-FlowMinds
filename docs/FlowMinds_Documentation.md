@@ -100,7 +100,7 @@ MIN_HAND_PRESENCE_CONFIDENCE = 0.5
 - **Customizable Keybinding GUI:** Develop a local PyQt or Tkinter settings panel allowing end-users to dynamically map detected gestures to arbitrary OS-level keyboard shortcuts.
 
 ## 10. Contributors
-- **Bashar Haidar** - Core Developer
+- **[Bashar Haidar](https://www.linkedin.com/in/bashar-haidar-8494a618b/)** - Core Developer
 - **Lana Kara Mohammed** - Core Developer
 
 *Project Repository: [github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds](https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds)*
