@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Download FlowMinds</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* Ensure the download page has enough minimum height for the footer to stick to the bottom */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  .wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 100px;
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-backdrop"></div>
+<div class="glow-orb a"></div>
+<div class="glow-orb b"></div>
+
+<header id="siteHeader">
+  <div class="logo">Flow<span>Minds</span></div>
+  <div class="nav-links">
+    <nav>
+      <ul>
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#how">How it Works</a></li>
+        <li><a href="index.html#gestures">Gestures</a></li>
+        <li><a href="index.html#demo">Demo</a></li>
+        <li><a href="download.html">Download</a></li>
+      </ul>
+    </nav>
+    <a href="index.html#demo" class="qr-btn" title="Live Web Demo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/></svg>
+    </a>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- DOWNLOAD APP -->
+  <section class="section" id="download" style="border: none; padding-top: 40px;">
+    <div class="section-head reveal in">
+      <span class="eyebrow">Native Experience</span>
+      <h2 class="section-title" style="font-size: 42px;">Download Desktop App</h2>
+      <p style="color: var(--text-dim); max-width: 600px; margin: 20px auto 0 auto; line-height: 1.6;">
+        Get the fully compiled, native executable for your operating system. No Python installation, webcams setups, or command line required. Just double-click and present.
+      </p>
+    </div>
+    
+    <div class="problem-grid reveal in" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); max-width: 800px; margin: 40px auto;">
+      <!-- Windows x64 -->
+      <div class="problem-card" style="text-align: center; padding: 40px 20px;">
+        <div class="icon" style="margin: 0 auto 15px auto;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/></svg>
+        </div>
+        <h3 style="margin-bottom: 8px; color: #fff;">Windows (x64)</h3>
+        <p style="font-size: 14px; margin-bottom: 25px; color: var(--text-dim);">For Windows 10 & 11</p>
+        <a href="https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds/releases/latest/download/FlowMinds-windows-x64.zip" class="btn btn-primary" style="width: 100%; justify-content: center;">Download .zip</a>
+      </div>
+
+      <!-- Mac Silicon -->
+      <div class="problem-card" style="text-align: center; padding: 40px 20px;">
+        <div class="icon" style="margin: 0 auto 15px auto;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.32 14.15c-.44.75-1.07 1.49-1.88 1.49-.8 0-1.05-.48-1.95-.48-.9 0-1.18.47-1.95.47-.83 0-1.46-.76-1.9-1.52-1.02-1.72-1.3-4.32-.42-5.9.43-.77 1.13-1.25 1.88-1.25.79 0 1.5.53 1.95.53.46 0 1.25-.57 2.16-.57 1.02 0 1.83.43 2.27 1.06-.08.06-1.35.79-1.35 2.37 0 1.93 1.66 2.61 1.7 2.63-.03.09-.27.9-.51 1.17zm-1.63-6.68c-.42.53-1.01.89-1.63.87-.09-1.16.42-2.27 1.15-2.98.42-.42.98-.74 1.58-.85.1 1.2-.41 2.4-1.1 2.96z"/></svg>
+        </div>
+        <h3 style="margin-bottom: 8px; color: #fff;">macOS (Apple Silicon)</h3>
+        <p style="font-size: 14px; margin-bottom: 25px; color: var(--text-dim);">For M1, M2, M3 MacBooks</p>
+        <a href="https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds/releases/latest/download/FlowMinds-macos-silicon.zip" class="btn btn-primary" style="width: 100%; justify-content: center;">Download .zip</a>
+        
+        <div style="margin-top: 15px; font-size: 12px; color: var(--text-dim); text-align: left; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; line-height: 1.4;">
+          <strong style="color: #fff;">Mac Users:</strong> If the app says it's "damaged" or "move to trash", open Terminal and run:
+          <code style="display: block; margin-top: 6px; padding: 6px; background: rgba(0,0,0,0.5); border-radius: 4px; color: var(--cyan); font-family: monospace; font-size: 11px; white-space: nowrap; overflow-x: auto;">xattr -cr /path/to/FlowMinds.app</code>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="footer-statement">
+    A <span class="kw">WEBCAM</span> IS ENOUGH TO CONTROL PRESENTATIONS <span class="kw">NATURALLY</span>.
+  </div>
+  <div class="qr-block">
+    <a href="index.html#demo" class="qr-square" style="text-decoration: none;" title="Live Web Demo">
+      <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v3M14 20h3M20 20v.01"/></svg>
+    </a>
+  </div>
+</footer>
+<div class="footer-meta">
+  <span>FLOWMINDS © SS2026</span>
+  <span>EMBODIED INTERACTION — BASHAR HAIDAR &amp; LANA KARA MOHAMMED</span>
+</div>
+
+<script>
+  // Simple scroll effect for header
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 20);
+  });
+</script>
+
+</body>
+</html>
