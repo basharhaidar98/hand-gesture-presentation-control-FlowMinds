@@ -41,10 +41,12 @@
         <span class="eyebrow">Embodied Interaction — SS 2026</span>
         <h1 class="headline">CONTROL PRESENTATIONS<br>USING ONLY <span class="glow">HAND GESTURES</span></h1>
         <p class="hero-desc">FlowMinds is a gesture-based control system using computer vision (<code>MediaPipe</code> + <code>OpenCV</code>) for natural presentation interaction — no mouse, no keyboard, no clicker.</p>
-        <div class="cta-row">
-          <a href="https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds" class="btn btn-primary" target="_blank" rel="noopener noreferrer">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px; vertical-align: middle;"><path d="M12 .3a12 12 0 00-3.8 23.4c.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1.1-.8.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1.1 1.9 2.9 1.3 3.6 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.4-1.3-5.4-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.7 5.6-5.4 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0012 .3z"/></svg>
-            GitHub Repository
+        <div class="cta-row" style="display: flex; gap: 16px;">
+          <a href="#demo" class="btn btn-primary">
+            Try Web Demo
+          </a>
+          <a href="#download" class="btn btn-ghost" style="border: 1px solid var(--border-color);">
+            Download App
           </a>
         </div>
         <div class="team-names" style="margin-top: 20px; font-size: 13px; font-family: var(--mono); color: var(--text-dim); letter-spacing: 0.05em;">
@@ -318,6 +320,46 @@
             <span id="pdf-name" class="pdf-name">No PDF uploaded (playing Demo)</span>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD APP -->
+  <section class="section" id="download">
+    <div class="section-head reveal">
+      <span class="eyebrow">Native Experience</span>
+      <h2 class="section-title">Download Desktop App</h2>
+    </div>
+    
+    <div class="problem-grid reveal" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+      <!-- Windows x64 -->
+      <div class="problem-card" style="text-align: center; padding: 30px 20px;">
+        <div class="icon" style="margin: 0 auto 15px auto;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.951-1.801"/></svg>
+        </div>
+        <h3 style="margin-bottom: 8px; color: #fff;">Windows (x64)</h3>
+        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-dim);">For Windows 10 & 11</p>
+        <a href="https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds/releases/latest/download/gestures-windows-x64.zip" class="btn btn-primary" style="width: 100%; justify-content: center;">Download .zip</a>
+      </div>
+
+      <!-- Mac Silicon -->
+      <div class="problem-card" style="text-align: center; padding: 30px 20px;">
+        <div class="icon" style="margin: 0 auto 15px auto;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.32 14.15c-.44.75-1.07 1.49-1.88 1.49-.8 0-1.05-.48-1.95-.48-.9 0-1.18.47-1.95.47-.83 0-1.46-.76-1.9-1.52-1.02-1.72-1.3-4.32-.42-5.9.43-.77 1.13-1.25 1.88-1.25.79 0 1.5.53 1.95.53.46 0 1.25-.57 2.16-.57 1.02 0 1.83.43 2.27 1.06-.08.06-1.35.79-1.35 2.37 0 1.93 1.66 2.61 1.7 2.63-.03.09-.27.9-.51 1.17zm-1.63-6.68c-.42.53-1.01.89-1.63.87-.09-1.16.42-2.27 1.15-2.98.42-.42.98-.74 1.58-.85.1 1.2-.41 2.4-1.1 2.96z"/></svg>
+        </div>
+        <h3 style="margin-bottom: 8px; color: #fff;">macOS (Silicon)</h3>
+        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-dim);">For M1, M2, M3 Chips</p>
+        <a href="https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds/releases/latest/download/gestures-macos-silicon.zip" class="btn btn-primary" style="width: 100%; justify-content: center;">Download .zip</a>
+      </div>
+
+      <!-- Mac Intel -->
+      <div class="problem-card" style="text-align: center; padding: 30px 20px;">
+        <div class="icon" style="margin: 0 auto 15px auto;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.32 14.15c-.44.75-1.07 1.49-1.88 1.49-.8 0-1.05-.48-1.95-.48-.9 0-1.18.47-1.95.47-.83 0-1.46-.76-1.9-1.52-1.02-1.72-1.3-4.32-.42-5.9.43-.77 1.13-1.25 1.88-1.25.79 0 1.5.53 1.95.53.46 0 1.25-.57 2.16-.57 1.02 0 1.83.43 2.27 1.06-.08.06-1.35.79-1.35 2.37 0 1.93 1.66 2.61 1.7 2.63-.03.09-.27.9-.51 1.17zm-1.63-6.68c-.42.53-1.01.89-1.63.87-.09-1.16.42-2.27 1.15-2.98.42-.42.98-.74 1.58-.85.1 1.2-.41 2.4-1.1 2.96z"/></svg>
+        </div>
+        <h3 style="margin-bottom: 8px; color: #fff;">macOS (Intel)</h3>
+        <p style="font-size: 14px; margin-bottom: 20px; color: var(--text-dim);">For Older Mac Devices</p>
+        <a href="https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds/releases/latest/download/gestures-macos-intel.zip" class="btn btn-primary" style="width: 100%; justify-content: center;">Download .zip</a>
       </div>
     </div>
   </section>
