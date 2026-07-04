@@ -12,9 +12,9 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=['tkinter', 'PyQt5', 'PySide2', 'PyQt6', 'PySide6', 'IPython', 'jupyter', 'scipy', 'pandas', 'notebook', 'PyInstaller'],
     noarchive=False,
-    optimize=0,
+    optimize=2,
 )
 pyz = PYZ(a.pure)
 
@@ -28,7 +28,7 @@ exe = EXE(
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=True,
+    console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
@@ -51,5 +51,6 @@ app = BUNDLE(
     bundle_identifier=None,
     info_plist={
         'NSCameraUsageDescription': 'Diese App benoetigt Zugriff auf die Kamera fuer die Gestensteuerung.',
+        'NSMicrophoneUsageDescription': 'Mikrofonzugriff wird von OpenCV benoetigt, um Kamera-Streams zu oeffnen.',
     },
 )

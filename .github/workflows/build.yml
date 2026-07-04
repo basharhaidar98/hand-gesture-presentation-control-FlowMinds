@@ -12,8 +12,6 @@ jobs:
         include:
           - os: windows-latest
             arch_name: windows-x64
-          - os: macos-13
-            arch_name: macos-intel
           - os: macos-14
             arch_name: macos-silicon
     runs-on: ${{ matrix.os }}
@@ -48,7 +46,7 @@ jobs:
           powershell Compress-Archive -Path src/dist/gestures -DestinationPath src/dist/gestures-${{ matrix.arch_name }}.zip
 
       - name: Compress artifacts (macOS)
-        if: matrix.os == 'macos-13' || matrix.os == 'macos-14'
+        if: matrix.os == 'macos-14'
         run: |
           zip -r src/dist/gestures-${{ matrix.arch_name }}.zip src/dist/gestures.app
 
