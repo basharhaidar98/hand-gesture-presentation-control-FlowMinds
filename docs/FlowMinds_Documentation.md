@@ -101,6 +101,6 @@ MIN_HAND_PRESENCE_CONFIDENCE = 0.5
 
 ## 10. Contributors
 - **[Bashar Haidar](https://www.linkedin.com/in/bashar-haidar-8494a618b/)** - Core Developer
-- **Lana Kara Mohammed** - Core Developer
+- **[Lana Kara Mohammed](https://github.com/Lana3267)** - Core Developer
 
 *Project Repository: [github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds](https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds)*
