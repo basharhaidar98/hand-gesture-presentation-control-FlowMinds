@@ -48,7 +48,9 @@ jobs:
       - name: Compress artifacts (macOS)
         if: matrix.os == 'macos-14'
         run: |
-          zip -r src/dist/FlowMinds-${{ matrix.arch_name }}.zip src/dist/FlowMinds.app
+          cd src/dist
+          codesign --force --deep -s - FlowMinds.app
+          ditto -c -k --sequesterRsrc --keepParent FlowMinds.app FlowMinds-${{ matrix.arch_name }}.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
