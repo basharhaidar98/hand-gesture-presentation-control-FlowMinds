@@ -4,6 +4,15 @@ os.environ['GLOG_minloglevel'] = '3'
 os.environ['GLOG_logtostderr'] = '0'
 
 import cv2
+import sys
+import traceback
+
+def exception_handler(exctype, value, tb):
+    log_path = "/tmp/FlowMinds_CrashLog.txt"
+    with open(log_path, "w") as f:
+        f.write("FlowMinds Crash Log:\n")
+        traceback.print_exception(exctype, value, tb, file=f)
+sys.excepthook = exception_handler
 import pyautogui
 import time
 import mediapipe as mp
