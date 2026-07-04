@@ -1,132 +1,106 @@
 # FlowMinds Technical Documentation
 
-## 1. Abstract & Introduction
-In the modern era of digital presentations, presenters often find themselves tethered to physical devices such as laptops, keyboards, or handheld clickers. FlowMinds was developed to bridge the gap between human kinetic expression and digital control, fulfilling the core principles of Embodied Interaction. By leveraging state-of-the-art Computer Vision (CV) algorithms and Machine Learning (ML) pipelines, FlowMinds allows users to control both native desktop presentations (e.g., PowerPoint, Keynote) and web-based PDF slides entirely through natural hand gestures captured by a standard webcam.
+## 1. Overview
+FlowMinds is a specialized embodied interaction system built for the **Embodied Interaction (SS2026)** course. The core objective of the system is to bridge the gap between human kinetic expression and digital control. By completely replacing traditional presentation remotes, it allows presenters to fluidly control their slides using natural hand gestures. The system captures live webcam feeds, processes spatial data in real-time, and fires global OS-level hardware interrupts to control presentation software seamlessly.
 
 ## 2. Architecture / Pipeline
-To ensure high maintainability and compliance with enterprise software standards, the project adopts a Monorepo architecture, cleanly separating the client-side web application (`web/`), the native desktop application (`src/`), and documentation into isolated domains.
+The project follows a linear, highly optimized data flow pipeline that guarantees low latency and deterministic outputs:
 
-The core data flow for the gesture recognition pipeline is as follows:
 ```text
 [Webcam Hardware] 
        │
        ▼
-[OpenCV Capture / Browser MediaDevices API] (Extracts raw video frames)
+[OpenCV Capture] (Extracts raw video frames)
        │
        ▼
-[MediaPipe HandLandmarker] (Async/Live-stream inference yielding 21 3D landmarks)
+[MediaPipe HandLandmarker] (Async/Live-stream inference via Task API)
        │
        ▼
-[Gesture Classification Logic] (Mathematical evaluation of landmarks & state machines)
+[Gesture Classification Logic] (Mathematical evaluation & Temporal State Machines)
        │
        ▼
-[Action Dispatcher] (PyAutoGUI in Desktop / DOM Manipulation in Web)
+[PyAutoGUI Action Dispatcher] (Fires OS-level keyboard/mouse events)
 ```
 
-- **Web Environment (WASM):** Executes fully client-side ensuring zero-dependency overhead, privacy, and ultra-low latency. UI is controlled via CSS variables and JavaScript Intersection Observers.
-- **Desktop Environment (Native):** Acts as a bridge between CV and OS-level hardware interrupts using PyAutoGUI to simulate global keyboard and mouse events.
+## 3. Requirements
+The system requires a strict environment configuration to guarantee compatibility, specifically due to the C++ bindings in MediaPipe.
 
-## 3. Requirements & Installation
+- **Python:** `3.11.x` 
+  > [!WARNING]  
+  > You MUST use Python 3.11 (`py -3.11` on Windows). MediaPipe is currently incompatible with Python 3.14 and will fail to build.
+- **MediaPipe:** `mediapipe==0.10.35` (Utilizes the new `Tasks API`, deprecating the legacy `mp.solutions.hands` which throws `AttributeError`).
+- **OpenCV:** `opencv-python`
+- **Automation:** `pyautogui`
 
-### Requirements
-To run the Desktop Application locally or build it from source, the following environment is required:
-- **OS:** Windows 10/11 or macOS 10.15+
-- **Python:** Version `3.11.x`
-- **Libraries:** `opencv-python` (v4.8.x+), `mediapipe` (v0.10.8+), `PyAutoGUI` (v0.9.54+), `pyinstaller` (v6.3.0+)
+## 4. Installation
+Follow these exact steps to instantiate the local environment and launch the gesture controller. The `hand_landmarker.task` AI model is configured to download/load automatically on first boot.
 
-### Installation
 ```bash
 # 1. Clone the repository
 git clone https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds.git
-cd hand-gesture-presentation-control-FlowMinds
+cd hand-gesture-presentation-control-FlowMinds/src
 
-# 2. Navigate to the desktop app source code
-cd src
+# 2. Create and activate a virtual environment specifying Python 3.11
+# Windows:
+py -3.11 -m venv venv
+venv\Scripts\activate
+# macOS/Linux:
+python3.11 -m venv venv
+source venv/bin/activate
 
-# 3. Create and activate a virtual environment (Recommended)
-python3 -m venv venv
-source venv/bin/activate  # On Windows use: venv\Scripts\activate
+# 3. Install strictly versioned dependencies
+pip install mediapipe==0.10.35 opencv-python pyautogui
 
-# 4. Install required dependencies
-pip install opencv-python mediapipe pyautogui pyinstaller
-
-# 5. Run the application
+# 4. Run the application
 python gestures.py
 ```
 
-## 4. Algorithmic Implementation (Core Logic)
-The core logic of FlowMinds relies on deterministic spatial algorithms applied to the 21-point hand landmark topography generated by MediaPipe. 
-
-### 4.1 Finger State Analysis Algorithm
-To determine if a specific finger is 'open' or 'closed', the system compares the Y-coordinate of the fingertip to the Y-coordinate of its corresponding lower knuckle (PIP joint). Since the Y-axis increases downwards in image coordinates, a finger is considered OPEN if its tip is geometrically HIGHER (less than) its knuckle.
-
-**Algorithm logic for detecting an open hand (Swipe Gestures):**
-1. Define tip indices: `[8, 12, 16, 20]`
-2. Define mid-joint indices: `[6, 10, 14, 18]`
-3. Condition: For each `i` in `[0..3]`, check if `landmark[tips[i]].y < landmark[mids[i]].y`
-
-If all conditions evaluate to True, the hand is fully open. The system then evaluates the X-coordinate of the thumb (landmark 4) relative to the index finger (landmark 8) to differentiate between the Right Hand (Next Slide) and Left Hand (Previous Slide).
-
-### 4.2 Laser Pointer Kinematics
-When the laser pointer state is active, the system extracts the normalized coordinates (x, y) of the index fingertip (landmark 8). Because webcams mirror the user horizontally (for natural UX), the X-coordinate is inverted using the formula: `Real_X = (1 - lm[8].x) * Container_Width`. This mapped coordinate dynamically translates an absolute HTML DOM element (or native OS cursor) over the presentation canvas.
-
 ## 5. Gesture Reference Table
-The following table maps the physical gestures to digital actions and details the logic constraints used for classification.
+The core algorithmic logic evaluates the 21 3D coordinates (Landmarks) yielded by the MediaPipe HandLandmarker.
 
 | Gesture | Action | Landmark Points & Logic Constraints |
 | :--- | :--- | :--- |
-| **Open Right Hand** | Next Slide | Tips `[8, 12, 16, 20]` < Mids `[6, 10, 14, 18]` (Y-axis) AND `lm[4].x < lm[8].x` |
-| **Open Left Hand** | Previous Slide | Tips `[8, 12, 16, 20]` < Mids `[6, 10, 14, 18]` (Y-axis) AND `lm[4].x > lm[8].x` |
-| **V-Gesture (Hold)** | Toggle Laser Pointer | Index & Middle OPEN (`tip < mid`), Ring & Pinky CLOSED (`tip > mid`). Held for 1.5s. |
-| **Index Pointing** | Move Laser Pointer | Executed only when Laser is active. Tracks `lm[8]` (Index tip) across screen. |
-| **Fist (Hold)** | Jump to Last Slide | Tips `[8, 12, 16, 20]` > Mids `[6, 10, 14, 18]` (Y-axis). Held for 4.0s. |
+| **Victory Sign (✌️)** | Toggle Full Control Mode | Index & Middle OPEN (`tip < mid`), Ring & Pinky CLOSED (`tip > mid`). |
+| **Closed Fist** | Jump to Last Slide | Tips `[8, 12, 16, 20]` > Mids `[6, 10, 14, 18]` (Y-axis). Requires 1.0s Hold. |
+| **Open Right Hand** | Next Slide | Tips < Mids AND Thumb X-coordinate checks indicating Right Hand. |
+| **Open Left Hand** | Previous Slide | Tips < Mids AND Thumb X-coordinate checks indicating Left Hand. |
 
 ## 6. Conflict Resolution Logic
-Handling multiple concurrent gestures requires robust "Conflict Guards" to prevent erratic UX.
+To prevent erratic UX when the user is transitioning between gestures, strict conflict guards have been embedded within the evaluation loop.
 
-- **Fist vs. Laser Conflict Guard:** A conditional guard `if (isFist(lm) && !laserActive)` ensures that if the laser pointer is active, curling the hand into a fist (either to turn off the laser or accidentally) will bypass the "Fist -> Last Slide" state machine completely.
-- **V-Gesture vs. Swipe Guard:** The V-gesture logic actively verifies that the Ring and Pinky fingers are strictly closed (`lm[16].y > lm[14].y`). This prevents an open hand (Swipe) from being misclassified as a V-Gesture when angled.
+- **V-Gesture Override:** A boolean state variable (`v_geste_erkannt`) tracks if the Victory gesture is actively recognized. A conflict guard (`if not v_geste_erkannt`) wraps the evaluation blocks for both the *Pinch* and *Open Hand* state machines. This mathematically guarantees that while the Victory sign is held, the system is physically incapable of misclassifying a partial hand-opening as a swipe.
 
-## 7. Known Issues & Solutions (Temporal State Machines)
+## 7. Known Issues & Solutions
 
 ### Issue 1: Accidental Triggering of the Fist Gesture
-- **Problem:** Momentary hand spasms or transitioning between open/closed states briefly matched the Fist gesture constraints, causing the presentation to jump erratically to the last slide.
-- **Solution:** Implemented a Temporal State Machine (Hold Timer) with a 4.0-second threshold. A `fistGestureStartTime` variable tracks the initial detection timestamp. The system evaluates `Δt` continuously and renders a countdown timer on the UI (`Hold 3.5s...`). If the gesture is broken before `Δt > 4000ms`, the timer resets instantly.
+- **Problem:** Momentary hand spasms or the natural mechanical transition between an open and closed hand briefly matched the "Fist" gesture constraints. This caused the presentation to erratically jump to the last slide.
+- **Solution:** Implemented a Temporal State Machine (Hold Timer). The Fist logic now requires a continuous 1.0-second hold. A countdown timer is rendered via OpenCV directly onto the debug video feed. If the gesture constraints are broken before the 1.0s threshold is reached, the state machine instantly aborts and resets the timer.
 
-### Issue 2: Unstable Laser Pointer Activation via Swipe
-- **Problem:** Originally, a swipe gesture was utilized to toggle the laser pointer. This proved highly unstable as standard slide-switching swipes frequently triggered the laser. Additionally, a legacy "Pen Mode" (Stift) compounded the interference.
-- **Solution:** The swipe toggle and legacy Pen Mode were completely deprecated. A dedicated **V-Gesture** (Peace Sign) was introduced solely for toggling the laser. This gesture is mechanically distinct from an open hand, drastically reducing false positives.
+### Issue 2: Unstable Laser Pointer / Control Activation via Swipe
+- **Problem:** Originally, a generic swipe gesture was utilized to toggle the main control states (like the Laser Pointer/Pen). This proved highly unstable as standard slide-switching swipes frequently triggered the toggle state. Furthermore, a legacy "Pen Mode" (`Stift`) compounded the interference.
+- **Solution:** The swipe toggle and legacy Pen Mode were completely deprecated. A dedicated **Victory (V) Gesture** was introduced solely as the toggle switch. Because the Victory gesture is mechanically distinct from an open hand, false positives were virtually eliminated.
 
 ## 8. Configuration Parameters
-Key threshold values and configurations have been externalized into a dedicated configuration file (`web/js/config.js`) for rapid adjustment.
+Key threshold values and configurations are exposed for rapid adjustment based on environmental factors (lighting, camera distance).
 
-```javascript
-const CONFIG = {
-  // Cooldown between slide transitions to prevent rapid double-skips
-  actionCooldownMs: 1200,
+```python
+# Cooldown between slide transitions (prevents rapid double-skips)
+ACTION_COOLDOWN_MS = 1200
 
-  // Hold duration for jumping to the last slide
-  fistHoldDurationMs: 4000,
+# Hold duration for the Fist gesture (Jump to Last Slide)
+FIST_HOLD_DURATION_MS = 1000
 
-  // Hold duration to toggle the laser pointer
-  vGestureHoldDurationMs: 1500,
-
-  // PDF.js crisp rendering scales for normal vs full-screen modes
-  pdfNormalScale: 1.2,
-  pdfFullscreenScale: 2.2,
-  
-  // Total default slides in the HTML demo
-  totalDemoSlides: 5
-};
+# MediaPipe Confidence Thresholds
+MIN_HAND_DETECTION_CONFIDENCE = 0.5
+MIN_HAND_PRESENCE_CONFIDENCE = 0.5
 ```
 
 ## 9. Future Improvements
-- **Dynamic Time Warping (DTW):** Implement sequence-based gesture recognition to allow users to draw specific shapes rather than relying purely on static poses.
-- **Customizable Keybinding GUI:** Develop a settings panel allowing end-users to dynamically map detected gestures to arbitrary OS-level keyboard shortcuts (e.g., Mapping "Fist" to `Alt+Tab`).
-- **WebRTC Integration:** Expand the web environment to support decentralized, remote presentation control using WebRTC protocols.
+- **Dynamic Time Warping (DTW):** Implement sequence-based, spatio-temporal gesture recognition to allow users to draw specific shapes (e.g., circles to highlight areas) rather than relying purely on static poses.
+- **Customizable Keybinding GUI:** Develop a local PyQt or Tkinter settings panel allowing end-users to dynamically map detected gestures to arbitrary OS-level keyboard shortcuts.
 
 ## 10. Contributors
 - **Bashar Haidar** - Core Developer
 - **Lana Kara Mohammed** - Core Developer
 
-*Project developed for the Embodied Interaction Course - SS2026 at Universität.*
+*Project Repository: [github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds](https://github.com/basharhaidar98/hand-gesture-presentation-control-FlowMinds)*
